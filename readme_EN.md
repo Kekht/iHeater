@@ -2,6 +2,8 @@
 
 This repository contains configuration files for the iHeater 3D printer camera heater based on the Klipper firmware and the control board of the same name. The configuration is designed to control the heating of the camera and fans using the iHeater microcontroller.
 
+![PCB](img/PCB.png)
+
 ## Table of Contents
 
 - [Requirements](#requirements)
