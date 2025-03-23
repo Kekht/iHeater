@@ -137,5 +137,5 @@ After rebooting, the board should appear as:
 
 - Katapult occupies the first 8 KB of flash, so **Klipper must be configured with an 8 KiB offset**.
 - You can use either a double reset or a GPIO button (PA4) to enter DFU mode.
-- If PA13/PA14 are used for SWD, don’t use them for Status LED in Katapult.
+- If PA13/PA14 are used for SWD
 - After flashing Katapult, you no longer need the ST-Link — all future updates can be done via USB.

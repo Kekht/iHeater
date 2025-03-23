@@ -124,6 +124,6 @@ Flash written and verified! jolly good!
 
 - Katapult занимает первые 8 КБ Flash, поэтому **в Klipper обязательно указывать смещение 8 KiB**.
 - Можно использовать либо двойной Reset, либо кнопку на GPIO (PA4) для входа в DFU.
-- Если PA13/PA14 используются для SWD — не используйте их под Status LED в Katapult.
+- Если PA13/PA14 используются для SWD
 - После прошивки Katapult можно больше не использовать ST-Link — вся дальнейшая работа по USB.
 
