@@ -5,6 +5,8 @@ iHeater is a compact and affordable solution for 3D printers without an active h
 
 It can operate independently with its own firmware as a standalone device or under Klipper control, connected to the printer via USB.
 
+![PCB](img/PCB_r2.png)
+
 **Under Klipper Control**
 
 The board works as a separate MCU in Klipper, fully autonomously controlling the chamber heater and fan. Thanks to its 220 V power supply, iHeater does not load the printer’s power supply, which is especially important since stock PSUs often operate at their limit.
@@ -31,7 +33,6 @@ The iHeater board is self-sufficient and includes all the necessary peripherals 
 
 This repository contains configuration files for the iHeater 3D printer chamber heater based on Klipper firmware and the control board of the same name. The configuration is designed to control the chamber heater and fans using the iHeater microcontroller.
 
-![PCB](img/PCB_r2.png)
 
 ## Table of Contents
 
