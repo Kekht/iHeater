@@ -1,6 +1,35 @@
+
+# About the iHeater Project
+
+iHeater is a compact and affordable solution for 3D printers without an active heated chamber or with limited connectivity to the mainboard. It is especially useful for models with proprietary boards where there are no available ports for a fan, heater, or thermistor. iHeater solves this problem in a simple and universal way.
+
+It can operate independently with its own firmware as a standalone device or under Klipper control, connected to the printer via USB.
+
+**Under Klipper Control**
+
+The board works as a separate MCU in Klipper, fully autonomously controlling the chamber heater and fan. Thanks to its 220 V power supply, iHeater does not load the printer’s power supply, which is especially important since stock PSUs often operate at their limit.
+
+The cost of the board is comparable to or even lower than building a similar solution from a regular microcontroller, solid-state relay, and other components. Nevertheless, enthusiasts still have the option to build their own version.
+
+iHeater is a simple way to add chamber heating to your printer to improve print quality and expand the range of materials used.
+
+**With iHeater Firmware**
+
+The iHeater board is self-sufficient and includes all the necessary peripherals and interface for use as a standalone device. The desired temperature is set by sequentially pressing the MODE button, and the selected temperature is encoded and displayed using three LEDs. The increment can be changed in the firmware.
+
+| Press | LED1 | LED2 | LED3 | °C  | BIN   | DEC |
+|-------|------|------|------|-----|-------|-----|
+| 1     | 0    | 0    | 1    | 45°C | 0b001 | 1   |
+| 2     | 0    | 1    | 0    | 50°C | 0b010 | 2   |
+| 3     | 0    | 1    | 1    | 55°C | 0b011 | 3   |
+| 4     | 1    | 0    | 0    | 60°C | 0b100 | 4   |
+| 5     | 1    | 0    | 1    | 65°C | 0b101 | 5   |
+| 6     | 1    | 1    | 0    | 70°C | 0b110 | 6   |
+| 7     | 1    | 1    | 1    | 75°C | 0b111 | 7   |
+
 # iHeater Configuration for Klipper
 
-This repository contains configuration files for the iHeater chamber heater for 3D printers based on Klipper firmware and the iHeater control board. The configuration is designed to manage the chamber heating and fans using the iHeater microcontroller.
+This repository contains configuration files for the iHeater 3D printer chamber heater based on Klipper firmware and the control board of the same name. The configuration is designed to control the chamber heater and fans using the iHeater microcontroller.
 
 ![PCB](img/PCB_r2.png)
 
@@ -12,213 +41,205 @@ This repository contains configuration files for the iHeater chamber heater for 
 - [Klipper Configuration](#klipper-configuration)
   - [Connecting the `iHeater` MCU](#1-connecting-the-iheater-mcu)
 - [Usage](#usage)
-  - [Chamber Heating Control Commands](#chamber-heating-control-commands)
-  - [Automation and Logic](#automation-and-logic)
+  - [Chamber Heating Commands](#chamber-heating-commands)
+  - [Automation and Control Logic](#automation-and-control-logic)
 - [Notes](#notes)
 - [License](#license)
 
 ## Requirements
 
 - **Hardware:**
-  - iHeater Control Board
-  - NTC 100K 3950 Thermistors (2 pcs)
-  - PTC Heating Element 220V 100W, for chamber
-  - 7530 220V Fan, for air circulation
-  - Thermal fuse KSD9700 or equivalent (220V 5A 130°C)
+  - iHeater control board
+  - NTC 100K 3950 thermistors (2 pcs.)
+  - PTC heating element 220V 100W for the chamber
+  - 7530 fan 220V for chamber air circulation
+  - Thermal fuse KSD9700 or similar (220V 5A 130°C)
 
 - **Software:**
   - Klipper (latest version)
-  - Configured and working host with Klipper
+  - A configured and running Klipper host
 
 ## Preparation
 
 1. **Assemble the hardware:**
-   - Connect the heating element and fans to the iHeater board.
-   - Connect the KSD thermal fuse to the appropriate header.
-   - Install thermistors into the chamber and connect them to the correct MCU pins.
-   - Ensure the pin connections match the configuration file.
+   - Connect the heating element and fans to the iHeater.
+   - Connect the KSD to the appropriate socket.
+   - Install the thermistors in the chamber and connect them to the appropriate MCU pins.
+   - Make sure the pins are connected correctly according to the config file.
 
-2. **Install configuration files:**
-   - Copy `iHeater.cfg` into your Klipper configuration directory.
+2. **Install the required files:**
+   - Copy the `iHeater.cfg` file to the Klipper configuration directory.
 
 ## Flashing Firmware to iHeater
 
-1. **Build Klipper firmware for STM32F042:**
+1. **Build the Klipper firmware for stm32f042:**
 
-    ```sh
-    cd klipper/
-    make menuconfig
-    ```
+```bash
+cd klipper/
+make menuconfig
+```
 
-2. **In menuconfig, select the following:**
+2. **In the menu, select:**
 
-    - Enable extra low-level configuration options
-    - Micro-controller Architecture (STMicroelectronics STM32)
-    - Processor model (STM32F042)
-    - Bootloader offset (8KiB bootloader)
-    - Clock Reference (Internal clock)
-    - Communication interface (USB (on PA9/PA10))
+- Enable extra low-level configuration options  
+- Micro-controller Architecture: STMicroelectronics STM32  
+- Processor model: STM32F042  
+- Bootloader offset: 8KiB bootloader  
+- Clock Reference: Internal clock  
+- Communication interface: USB (on PA9/PA10)
 
 3. **Disable unnecessary options:**
 
-    ```
-    [*] Support GPIO "bit-banging" devices
-    [ ] Support LCD devices
-    [ ] Support thermocouple MAX sensors
-    [ ] Support adxl accelerometers
-    [ ] Support lis2dw and lis3dh 3-axis accelerometers
-    [ ] Support MPU accelerometers
-    [ ] Support HX711 and HX717 ADC chips
-    [ ] Support ADS 1220 ADC chip
-    [ ] Support ldc1612 eddy current sensor
-    [ ] Support angle sensors
-    [*] Support software based I2C "bit-banging"
-    [ ] Support software based SPI "bit-banging"
-    ```
+```text
+[*] Support GPIO "bit-banging" devices  
+[ ] Support LCD devices  
+[ ] Support thermocouple MAX sensors  
+[ ] Support adxl accelerometers  
+[ ] Support lis2dw and lis3dh 3-axis accelerometers  
+[ ] Support MPU accelerometers  
+[ ] Support HX711 and HX717 ADC chips  
+[ ] Support ADS 1220 ADC chip  
+[ ] Support ldc1612 eddy current sensor  
+[ ] Support angle sensors  
+[*] Support software based I2C "bit-banging"  
+[ ] Support software based SPI "bit-banging"
+```
 
 4. Save and exit the menu.
 
-5. **Compile the firmware:**
+5. Compile the firmware:
 
-    ```sh
-    make clean
-    make
-    ```
+```bash
+make clean
+make
+```
 
-    Expected output:
-    ```
-    Creating hex file out/klipper.bin
-    ```
+Expected output:
 
-6. **Flashing firmware to iHeater:**
+```
+Creating hex file out/klipper.bin
+```
 
-    If needed, install pyserial:
+6. Flash the firmware to the iHeater board:
 
-    ```sh
-    sudo apt install python3-serial
-    ```
+If needed, install python3-serial:
 
-    This example uses Katapult bootloader.
+```bash
+sudo apt install python3-serial
+```
 
-- Connect iHeater to your computer while holding the Mode button to enter flashing mode.
+**The following assumes the Katapult bootloader is installed.**
 
-- Check for the device:
+- Connect iHeater to the host in programming mode (hold the Mode button while connecting or double-press RESET).
+- Find the device:
 
-    ```sh
-    ls /dev/serial/by-id/
-    ```
+```bash
+ls /dev/serial/by-id/
+```
 
-    Expected output:
-    ```
-    usb-katapult_stm32f042x6_0C0018000D53304347373020-if00
-    ```
+Expected result:
 
-- Replace with your actual ID and run:
+```
+usb-katapult_stm32f042x6_0C0018000D53304347373020-if00
+```
 
-    ```sh
-    python3 ~/katapult/scripts/flashtool.py -d /dev/serial/by-id/usb-katapult_stm32f042x6_... -f out/klipper.bin
-    ```
+- Replace with your device ID and run:
 
-    Expected output:
+```bash
+python3 ~/katapult/scripts/flashtool.py -d /dev/serial/by-id/usb-katapult_stm32f042x6_... -f ~/klipper/out/klipper.bin
+```
 
-    ```
-    Flashing '/home/pi/klipper/out/klipper.bin'...
+Expected result:
 
-    [##################################################]
-    
-    Write complete: 20 pages
-
-    Verifying (block count = 319)...
-
-    [##################################################]
-
-    Verification Complete: SHA = 8A3DDF39A0E70B684DC6BAF74EF8F089EBDD6C18
-
-    Flash Success
-    ```
+```
+Flash Success
+```
 
 - Verify:
 
-    ```sh
-    ls /dev/serial/by-id/
-    ```
+```bash
+ls /dev/serial/by-id/
+```
 
-    Expected result:
-    ```
-    usb-Klipper_stm32f042x6_0C0018000D53304347373020-if00
-    ```
+Expected:
 
-    iHeater is now ready to work with Klipper.
+```
+usb-Klipper_stm32f042x6_...-if00
+```
+
+```text
+iHeater is ready to work with Klipper
+```
 
 ## Pin Configuration
 
-| Pin    | Alias       | Function                          |
-|--------|-------------|-----------------------------------|
-| PA0    | TH1         | Heater thermistor                 |
-| PA1    | HEATER      | Heater control                    |
-| PA2    | FAN         | Fan control                       |
-| PA3    | TH0         | Chamber thermistor                |
-| PA4    | MODE        | Mode button                       |
-| PA5    | LED3        | LED 3                             |
-| PA6    | LED2        | LED 2                             |
-| PA7    | LED1        | LED 1                             |
+| Pin  | Alias | Function                          |
+|------|-------|-----------------------------------|
+| PA0  | TH1   | Heater temperature sensor         |
+| PA1  | HEATER| Heater control                    |
+| PA2  | FAN   | Fan control                       |
+| PA3  | TH0   | Chamber temperature sensor        |
+| PA4  | MODE  | Mode button                       |
+| PA5  | LED3  | LED 3                             |
+| PA6  | LED2  | LED 2                             |
+| PA7  | LED1  | LED 1                             |
 
 ## Klipper Configuration
 
-Copy the `iHeater.cfg` configuration file into the same folder as `printer.cfg` and include it using:
+Copy the iHeater.cfg file to the folder containing printer.cfg and include it using the `[include]` directive:
 
 ```ini
 [include iHeater.cfg]
 ```
 
-### 1. Connecting the `iHeater` MCU
+### 1. Connecting the iHeater MCU
 
-Update the `iHeater.cfg` file with the correct serial ID:
+Edit the `iHeater.cfg` file and specify the obtained serial ID:
 
 ```ini
 [mcu iHeater]
-serial: usb-Klipper_stm32f042x6_0C0018000D53304347373020-if00
+serial: usb-Klipper_stm32f042x6_0C0018000D53304347373020-if000
 ```
 
 ## Usage
 
-### Chamber Heating Control Commands
+### Chamber Heating Commands
 
 - Set chamber temperature:
 
-    ```gcode
-    M141 S60  ; Set chamber temperature to 60°C
-    ```
+```gcode
+M141 S60 ; Set chamber temp to 60°C
+```
 
-- Wait until chamber reaches target temperature:
+- Wait for chamber to reach temperature:
 
-    ```gcode
-    M191 S60  ; Wait for chamber to reach 60°C
-    ```
+```gcode
+M191 S60 ; Wait until chamber reaches 60°C
+```
 
 - Stop chamber heating:
 
-    ```gcode
-    M141 S0   ; Disable chamber heating
-    ```
+```gcode
+M141 S0  ; Disable chamber heating
+```
 
-- Add `M141 S0` to the end of your slicer's G-code to safely turn off the heater.
+- At the end of your slicer’s G-code, add `M141 S0` to properly shut down chamber heating.
 
 ## Notes
 
 - **Safety:**
-  - Ensure all wiring is correct and secure.
-  - Make sure `min_temp` and `max_temp` values are appropriate for your hardware.
+  - Make sure all connections are correct and safe.
+  - Check that min_temp and max_temp match your hardware specs.
 
 - **Hardware check:**
-  - Test the heater and fan before regular use.
-  - Monitor temperatures during initial testing.
+  - Test heater and fan operation before use.
+  - Monitor temperature during first runs.
 
-- **PID Tuning:**
-  - Perform PID calibration if needed for accurate temperature control.
+- **PID tuning:**
+  - Perform PID tuning if precise temperature control is needed.
 
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
 
-> ⚠️ **Warning:** Using heating elements and temperature control involves risks of fire and equipment damage. Always follow manufacturer guidelines and observe safety precautions.
+>⚠️ **Warning: The use of heating elements and temperature control involves fire and equipment damage risk. Always follow manufacturer recommendations and observe safety precautions.
