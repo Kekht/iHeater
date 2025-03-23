@@ -1,232 +1,224 @@
+# iHeater Configuration for Klipper
 
-# О проекте iHeater
-
-iHeater — это компактное и доступное решение для 3D-принтеров без активной термокамеры или с ограниченными возможностями подключения к материнской плате. Он особенно полезен для моделей с проприетарными платами, где нет свободных разъёмов для вентилятора, нагревателя или термистора. iHeater решает эту задачу простым и универсальным способом.
-
-Может работать самостоятельно с собственной прошивкой как отдельное устройство или под управлением Klipper с подключением к принтеру по USB
-
-**Под управлением Klipper**
-
-Плата работает как отдельный MCU в Klipper, полностью автономно управляя нагревом камеры и вентилятором. Благодаря питанию от 220 В, iHeater не нагружает блок питания принтера, что особенно важно, учитывая, что штатные БП часто работают на пределе.
-
-Стоимость платы сопоставима или даже ниже, чем самостоятельная сборка аналогичного решения на базе обычного микроконтроллера, твердотельного реле и других необходимых комплектующих. Тем не менее, для энтузиастов остаётся возможность собрать аналог самостоятельно.
-
-iHeater — это простой способ добавить нагрев камеры в ваш принтер, для повышения качества печати и расширения диапазона применяемых материалов.
-
-**С прошивкой iHeater**
-
-Плата iHeater является самодостаточной и имеет всю необходимую периферию и интерфейс управления и отображения для использования как самостоятельное устройство. Необходимая температура задается последовательным нажатием кнопки MODE, а выбранная температура кодируется и отображается тремя светодиодами. Приращение можно изменить в прошивке.
-
-Нажатие	|LED1	|LED2	|LED3	|Температура	|BIN	|DEC
--|-|-|-|-|-|-
-1	|0	|0	|1	|45 °C	|0b001	|1
-2	|0	|1	|0	|50 °C	|0b010	|2
-3	|0	|1	|1	|55 °C	|0b011	|3
-4	|1	|0	|0	|60 °C	|0b100	|4
-5	|1	|0	|1	|65 °C	|0b101	|5
-6	|1	|1	|0	|70 °C	|0b110	|6
-7	|1	|1	|1	|75 °C	|0b111	|7
-
-
-# Конфигурация iHeater для Klipper
-
-Данный репозиторий содержит конфигурационные файлы для нагревателя камеры 3D-принтера iHeater на основе прошивки Klipper и одноименной платы управления. Конфигурация предназначена для управления нагревом камеры и вентиляторами с помощью микроконтроллера iHeater.
+This repository contains configuration files for the iHeater chamber heater for 3D printers based on Klipper firmware and the iHeater control board. The configuration is designed to manage the chamber heating and fans using the iHeater microcontroller.
 
 ![PCB](img/PCB_r2.png)
 
-## Оглавление
+## Table of Contents
 
-- [Требования](#требования)
-- [Подготовка](#подготовка)
-- [Установка прошивки на iHeater](#установка-прошивки-на-iheater)
-- [Конфигурация Klipper](#конфигурация-klipper)
-  - [Подключение MCU `iHeater`](#1-подключение-mcu-iheater)
-- [Использование](#использование)
-  - [Команды управления нагревом камеры](#команды-управления-нагревом-камеры)
-  - [Автоматизация и логика управления](#автоматизация-и-логика-управления)
-- [Примечания](#примечания)
-- [Лицензия](#лицензия)
+- [Requirements](#requirements)
+- [Preparation](#preparation)
+- [Flashing Firmware to iHeater](#flashing-firmware-to-iheater)
+- [Klipper Configuration](#klipper-configuration)
+  - [Connecting the `iHeater` MCU](#1-connecting-the-iheater-mcu)
+- [Usage](#usage)
+  - [Chamber Heating Control Commands](#chamber-heating-control-commands)
+  - [Automation and Logic](#automation-and-logic)
+- [Notes](#notes)
+- [License](#license)
 
-## Требования
+## Requirements
 
-- **Аппаратное обеспечение:**
-  - Плата управления iHeater
-  - Терморезисторы NTC 100K 3950 (2 шт.)
-  - PTC нагревательный элемент 220В 100Вт, для камеры
-  - Вентилятор 7530 220В, для циркуляции воздуха в камере
-  - Термофьюз KSD9700 или аналогичный (220В 5А 130С)
+- **Hardware:**
+  - iHeater Control Board
+  - NTC 100K 3950 Thermistors (2 pcs)
+  - PTC Heating Element 220V 100W, for chamber
+  - 7530 220V Fan, for air circulation
+  - Thermal fuse KSD9700 or equivalent (220V 5A 130°C)
 
-- **Программное обеспечение:**
-  - Klipper (последняя версия)
-  - Настроенный и работающий хост с Klipper
+- **Software:**
+  - Klipper (latest version)
+  - Configured and working host with Klipper
 
-## Подготовка
+## Preparation
 
-1. **Сборка аппаратной части:**
-   - Подключите нагревательный элемент и вентиляторы к iHeater.
-   - Подключите KSD в соответствующий разъем.
-   - Установите терморезисторы в камере и подключите их к соответствующим пинам MCU.
-   - Убедитесь в правильности подключения пинов согласно конфигурационному файлу.
+1. **Assemble the hardware:**
+   - Connect the heating element and fans to the iHeater board.
+   - Connect the KSD thermal fuse to the appropriate header.
+   - Install thermistors into the chamber and connect them to the correct MCU pins.
+   - Ensure the pin connections match the configuration file.
 
-2. **Установка необходимых файлов:**
-   - Скопируйте файл iHeater.cfg в директорию конфигурации Klipper.
+2. **Install configuration files:**
+   - Copy `iHeater.cfg` into your Klipper configuration directory.
 
-## Установка прошивки на iHeater
+## Flashing Firmware to iHeater
 
-1. **Соберите прошивку Klipper для stm32f042:**
+1. **Build Klipper firmware for STM32F042:**
 
-   cd klipper/
-   make menuconfig
+    ```sh
+    cd klipper/
+    make menuconfig
+    ```
 
+2. **In menuconfig, select the following:**
 
-2. **В меню конфигурации выберите:**
+    - Enable extra low-level configuration options
+    - Micro-controller Architecture (STMicroelectronics STM32)
+    - Processor model (STM32F042)
+    - Bootloader offset (8KiB bootloader)
+    - Clock Reference (Internal clock)
+    - Communication interface (USB (on PA9/PA10))
 
-    Enable extra low-level configuration options
+3. **Disable unnecessary options:**
+
+    ```
+    [*] Support GPIO "bit-banging" devices
+    [ ] Support LCD devices
+    [ ] Support thermocouple MAX sensors
+    [ ] Support adxl accelerometers
+    [ ] Support lis2dw and lis3dh 3-axis accelerometers
+    [ ] Support MPU accelerometers
+    [ ] Support HX711 and HX717 ADC chips
+    [ ] Support ADS 1220 ADC chip
+    [ ] Support ldc1612 eddy current sensor
+    [ ] Support angle sensors
+    [*] Support software based I2C "bit-banging"
+    [ ] Support software based SPI "bit-banging"
+    ```
+
+4. Save and exit the menu.
+
+5. **Compile the firmware:**
+
+    ```sh
+    make clean
+    make
+    ```
+
+    Expected output:
+    ```
+    Creating hex file out/klipper.bin
+    ```
+
+6. **Flashing firmware to iHeater:**
+
+    If needed, install pyserial:
+
+    ```sh
+    sudo apt install python3-serial
+    ```
+
+    This example uses Katapult bootloader.
+
+- Connect iHeater to your computer while holding the Mode button to enter flashing mode.
+
+- Check for the device:
+
+    ```sh
+    ls /dev/serial/by-id/
+    ```
+
+    Expected output:
+    ```
+    usb-katapult_stm32f042x6_0C0018000D53304347373020-if00
+    ```
+
+- Replace with your actual ID and run:
+
+    ```sh
+    python3 ~/katapult/scripts/flashtool.py -d /dev/serial/by-id/usb-katapult_stm32f042x6_... -f out/klipper.bin
+    ```
+
+    Expected output:
+
+    ```
+    Flashing '/home/pi/klipper/out/klipper.bin'...
+
+    [##################################################]
     
-    Micro-controller Architecture (STMicroelectronics STM32)
+    Write complete: 20 pages
 
-    Processor model (STM32F042)
+    Verifying (block count = 319)...
 
-    Bootloader offset (8KiB bootloader)
+    [##################################################]
 
-    Clock Reference (Internal clock)
+    Verification Complete: SHA = 8A3DDF39A0E70B684DC6BAF74EF8F089EBDD6C18
 
-    Communication interface (USB (on PA9/PA10))
+    Flash Success
+    ```
 
-3. **Выключите все лишнее**
+- Verify:
 
-        [*] Support GPIO "bit-banging" devices
-        [ ] Support LCD devices
-        [ ] Support thermocouple MAX sensors
-        [ ] Support adxl accelerometers
-        [ ] Support lis2dw and lis3dh 3-axis accelerometers
-        [ ] Support MPU accelerometers
-        [ ] Support HX711 and HX717 ADC chips
-        [ ] Support ADS 1220 ADC chip
-        [ ] Support ldc1612 eddy current sensor
-        [ ] Support angle sensors
-        [*] Support software based I2C "bit-banging"
-        [ ] Support software based SPI "bit-banging"
+    ```sh
+    ls /dev/serial/by-id/
+    ```
 
+    Expected result:
+    ```
+    usb-Klipper_stm32f042x6_0C0018000D53304347373020-if00
+    ```
 
-4. Сохраните и выйдите из меню.
+    iHeater is now ready to work with Klipper.
 
-5. Скомпилируйте прошивку:
-
-        make clean
-        make
-
-    !!! Результат должен выглядеть так:
-
-        Creating hex file out/klipper.bin
-
-6. Установка прошивки на плату iHeater:
-
-    При необходимости установите python3-serial
-        
-        sudo apt install python3-serial
-
-    !!! Далее рассматривается вариант установки с установленным бутлоадером Katapult```
-
-- Подключите iHeater к компьютеру в режиме программирования (удерживая кнопку Mode при подключении).
-
-- Выполните поиск 
-
-        ls /dev/serial/by-id/
-
-    !!! Результат должен выглядеть так:
-
-        usb-katapult_stm32f042x6_0C0018000D53304347373020-if00
-
-- Измените на ID свой и введите:
-    
-        python3 ~/katapult/scripts/flashtool.py -d /dev/serial/by-id/usb-katapult_stm32f042x6_0C0018000D53304347373020-if00 -f out/klipper.bin
-
-    !!! Результат должен выглядеть так:
-
-        Flashing '/home/pi/klipper/out/klipper.bin'...
-
-        [##################################################]
-        
-        Write complete: 20 pages
-
-        Verifying (block count = 319)...
-
-        [##################################################]
-
-        Verification Complete: SHA = 8A3DDF39A0E70B684DC6BAF74EF8F089EBDD6C18
-
-        Flash Success
-
-- Проверьте: 
-        
-            ls /dev/serial/by-id/
-
-    !!! Результат должен выглядеть так:
-        usb-Klipper_stm32f042x6_0C0018000D53304347373020-if00
-
-    ```iHeater готов для работы с Klipper```
-
-## Конфигурация пинов
+## Pin Configuration
 
 | Pin    | Alias       | Function                          |
 |--------|-------------|-----------------------------------|
-| PA0    | TH1         | Температурный датчик нагревателя  |
-| PA1    | HEATER      | Управление нагревателем           |
-| PA2    | FAN         | Управление вентилятором           |
-| PA3    | TH0         | Температурный датчик камеры       |
-| PA4    | MODE        | Кнопка режима                     |
-| PA5    | LED3        | Светодиод 3                       |
-| PA6    | LED2        | Светодиод 2                       |
-| PA7    | LED1        | Светодиод 1                       |
+| PA0    | TH1         | Heater thermistor                 |
+| PA1    | HEATER      | Heater control                    |
+| PA2    | FAN         | Fan control                       |
+| PA3    | TH0         | Chamber thermistor                |
+| PA4    | MODE        | Mode button                       |
+| PA5    | LED3        | LED 3                             |
+| PA6    | LED2        | LED 2                             |
+| PA7    | LED1        | LED 1                             |
 
+## Klipper Configuration
 
-## Конфигурация Klipper
+Copy the `iHeater.cfg` configuration file into the same folder as `printer.cfg` and include it using:
 
-Скопируйте конфигурационные файлы iHeater.cfg в папку с файлом printer.cfg и подключите его в printer.cfg с помощью директивы [include]
-        
-    [include iHeater.cfg]
+```ini
+[include iHeater.cfg]
+```
 
-### 1. Подключение MCU iHeater
+### 1. Connecting the `iHeater` MCU
 
-- Измените файл iHeater.cfg, укажите полученный ID
+Update the `iHeater.cfg` file with the correct serial ID:
 
-        [mcu iHeater]
-        serial: usb-Klipper_stm32f042x6_0C0018000D53304347373020-if000
+```ini
+[mcu iHeater]
+serial: usb-Klipper_stm32f042x6_0C0018000D53304347373020-if00
+```
 
-## Использование
-### Команды управления нагревом камеры
-- Установка температуры камеры:
- 
+## Usage
 
-        M141 S60  ; Устанавливает температуру камеры на 60°C
+### Chamber Heating Control Commands
 
-- Ожидание достижения температуры:
+- Set chamber temperature:
 
-        M191 S60  ; Ждет, пока температура камеры достигнет 60°C
+    ```gcode
+    M141 S60  ; Set chamber temperature to 60°C
+    ```
 
-- Остановка нагрева камеры:
+- Wait until chamber reaches target temperature:
 
-        M141 S0   ; Отключает нагрев камеры
+    ```gcode
+    M191 S60  ; Wait for chamber to reach 60°C
+    ```
 
-- В завершении G-кода слайсера добавьте `M141 S0`, чтобы корректно отключить нагрев камеры.
+- Stop chamber heating:
 
+    ```gcode
+    M141 S0   ; Disable chamber heating
+    ```
 
-## Примечания
-- Безопасность:
+- Add `M141 S0` to the end of your slicer's G-code to safely turn off the heater.
 
-    - Убедитесь, что все подключения выполнены правильно и безопасно.
-    - Проверьте, что значения min_temp и max_temp соответствуют спецификациям оборудования.
+## Notes
 
-- Проверка оборудования:
-    - Перед использованием протестируйте работу нагревателя и вентилятора.
-    - Следите за температурой во время первых запусков.
-- Настройка PID:
-    - При необходимости выполните калибровку PID для точного контроля температуры.
+- **Safety:**
+  - Ensure all wiring is correct and secure.
+  - Make sure `min_temp` and `max_temp` values are appropriate for your hardware.
 
+- **Hardware check:**
+  - Test the heater and fan before regular use.
+  - Monitor temperatures during initial testing.
 
-## Лицензия
-Данный проект распространяется под лицензией MIT. Подробности смотрите в файле LICENSE.
+- **PID Tuning:**
+  - Perform PID calibration if needed for accurate temperature control.
 
+## License
 
->⚠️  ** Внимание: Использование нагревательных элементов и управление температурой связано с риском возгорания и повреждения оборудования. Всегда следуйте рекомендациям производителя и соблюдайте меры предосторожности.
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+> ⚠️ **Warning:** Using heating elements and temperature control involves risks of fire and equipment damage. Always follow manufacturer guidelines and observe safety precautions.

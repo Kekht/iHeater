@@ -8,7 +8,7 @@
 
 - STM32F042F6P6
 - Плата iHeater
-- ST-Link V2 программатор (для первой прошивки)
+- ST-Link V2 программатор (для первой прошивки) или USB кабель
 - Linux-система (например, Raspberry Pi или принтер)
 
 ---
@@ -25,14 +25,16 @@ make menuconfig
 
 2. В `menuconfig` выбери:
 
-- `MCU Architecture`: STM32
-- `Processor model`: STM32F042
-- `Clock Reference`: Internal
-- `Communication interface`: USB (on PA9/PA10)
-- `Application start offset`: **8KiB offset**
-- `[x] Support bootloader entry on rapid double click of reset button`
-- `[x] Enable bootloader entry on button (or gpio) state` → GPIO: `PA4` 
-- `[X] Enable Status LED` *(Включите PA5)*
+- MCU Architecture: STM32
+- Processor model: STM32F042
+- Clock Reference: Internal
+- Communication interface: USB (on PA9/PA10)
+- Application start offset: **8KiB offset**
+- [x] Support bootloader entry on rapid double click of reset button
+- [x] Enable bootloader entry on button (or gpio) state
+- (!PA4)  Button GPIO Pin
+- [X] Enable Status LED
+- (PA5)   Status LED GPIO Pin
 
 
 ![menuconfig](img/katapult_menuconfig.jpg)
@@ -80,54 +82,43 @@ Flash written and verified! jolly good!
 
 ---
 
-## 🚀 Проверка Katapult
+## Прошивка Katapult через DFU
 
-1. Убедитесь, что `BOOT0 = 0`
-2. Подключите USB к плате
-3. Дважды нажмите кнопку **Reset** или нажмите и удерживайте **MODE** при подключении или сбросе
-4. Выполните:
+> Этот шаг нужен только один раз, для загрузки самого Katapult.
 
-```bash
-lsusb
-```
+### Подготовка:
+Установи утилиту dfu-util, если она ещё не установлена:
+    
+    sudo apt install dfu-util
 
-Ожидаемое устройство:
+Установи джампер на BOOT0 и перезапусти питание платы (или нажми кнопку RESET).
+Микроконтроллер загрузится в режим DFU.
 
-```
-ID 1d50:614e OpenMoko, Inc. Katapult DFU Bootloader
-```
-![openmoko](img/openmoko.jpg)
----
+Проверь подключение:
 
-## ⏫ Загрузка прошивки Klipper через Katapult
+    lsusb
 
-1. Соберите прошивку Klipper с учётом загрузчика (8 KiB offset):
+Ты должен увидеть:
 
-```bash
-cd ~/klipper
-make menuconfig
-```
+    ID 0483:df11 STMicroelectronics STM Device in DFU Mode
 
-- `MCU Architecture`: STM32
-- `Processor`: STM32F042
-- `Bootloader offset`: 8 KiB
-- `Clock`: Internal
-- `Interface`: USB
+### Прошивка Katapult:
+Выполни команду:
 
-2. Сборка и прошивка:
+    dfu-util -a 0 -D out/katapult.bin -s 0x08000000:leave
 
-```bash
-make
-make flash FLASH_DEVICE=/dev/ttyACM0
-```
+Пример успешной прошивки:
 
-Или с помощью `flash-sdcard.py`:
+    Downloading to address = 0x08000000, size = 4968
+    Download        [=========================] 100%         4968 bytes
+    Download done.
+    File downloaded successfully
+    Transitioning to dfuMANIFEST state
 
-```bash
-python3 ~/klipper/scripts/flash-sdcard.py -f out/klipper.bin -d /dev/ttyACM0
-```
+После перезапуска плата появится как:
 
----
+    /dev/serial/by-id/usb-katapult_stm32f042x6_XXXXXXXXXXXXXX-if00
+
 
 ## 📋 Примечания
 
