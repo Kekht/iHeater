@@ -1,247 +1,224 @@
-# iHeater configuration for Klipper
+# iHeater Configuration for Klipper
 
-This repository contains configuration files for the iHeater 3D printer camera heater based on the Klipper firmware and the control board of the same name. The configuration is designed to control the heating of the camera and fans using the iHeater microcontroller.
+This repository contains configuration files for the iHeater chamber heater for 3D printers based on Klipper firmware and the iHeater control board. The configuration is designed to manage the chamber heating and fans using the iHeater microcontroller.
 
-![PCB](img/PCB.png)
+![PCB](img/PCB_r2.png)
 
 ## Table of Contents
 
 - [Requirements](#requirements)
 - [Preparation](#preparation)
-- [Installing firmware on iHeater](#installing-firmware-on-iheater)
-- [Klipper configuration](#configuration-klipper)
-- [Connecting MCU iHeater](#1-connecting-mcu-iheater)
-  - [Heater setting iHeater_H](#2-heater-setting-iheater_h)
-- [Fan setting iHeater_F](#3-fan-setting-iheater_f)
-- [Temperature sensor setting](#4-temperature-sensor-setting)
-- [G-code macros](#macros-g-code)
+- [Flashing Firmware to iHeater](#flashing-firmware-to-iheater)
+- [Klipper Configuration](#klipper-configuration)
+  - [Connecting the `iHeater` MCU](#1-connecting-the-iheater-mcu)
 - [Usage](#usage)
-- [Camera heating control commands](#camera-heating-control-commands)
-- [Automation and control logic](#automation-and-control-logic)
+  - [Chamber Heating Control Commands](#chamber-heating-control-commands)
+  - [Automation and Logic](#automation-and-logic)
 - [Notes](#notes)
 - [License](#license)
 
 ## Requirements
 
 - **Hardware:**
-- iHeater control Board
-  - Thermistors NTC 100K MGB18-104F39050L32 (2 pcs.)
-- PTC heating element 220V 100W, for camera
-  - 7530 220V fan, for air circulation in the chamber
+  - iHeater Control Board
+  - NTC 100K 3950 Thermistors (2 pcs)
+  - PTC Heating Element 220V 100W, for chamber
+  - 7530 220V Fan, for air circulation
+  - Thermal fuse KSD9700 or equivalent (220V 5A 130°C)
 
 - **Software:**
-- Klipper (latest version)
-- Configured and working 3D printer with Klipper
+  - Klipper (latest version)
+  - Configured and working host with Klipper
 
 ## Preparation
 
-1. **Hardware assembly:**
-- Connect the heating element and fans to the iHeater.
-   - Install the thermistors in the camera and connect them to the appropriate pins of the MCU.
-   - Make sure that the pins are connected correctly according to the configuration file.
+1. **Assemble the hardware:**
+   - Connect the heating element and fans to the iHeater board.
+   - Connect the KSD thermal fuse to the appropriate header.
+   - Install thermistors into the chamber and connect them to the correct MCU pins.
+   - Ensure the pin connections match the configuration file.
 
-2. **Installation of the necessary files:**
-- Copy the file `rp2040_pin_aliases.cfg` and `iHeaterMCU.cfg` to the Klipper configuration directory.
+2. **Install configuration files:**
+   - Copy `iHeater.cfg` into your Klipper configuration directory.
 
-## Installing firmware on iHeater
+## Flashing Firmware to iHeater
 
-1. **Assemble the Klipper firmware for RP2040:**
+1. **Build Klipper firmware for STM32F042:**
 
-   cd klipper/
-   make menuconfig
+    ```sh
+    cd klipper/
+    make menuconfig
+    ```
 
+2. **In menuconfig, select the following:**
 
-**In the configuration menu, select:**
+    - Enable extra low-level configuration options
+    - Micro-controller Architecture (STMicroelectronics STM32)
+    - Processor model (STM32F042)
+    - Bootloader offset (8KiB bootloader)
+    - Clock Reference (Internal clock)
+    - Communication interface (USB (on PA9/PA10))
 
- - Micro-controller Architecture: RP2040
- - Processor model: rp2040
- - Leave the rest of the settings as default.
+3. **Disable unnecessary options:**
 
-**Save and exit the menu.**
+    ```
+    [*] Support GPIO "bit-banging" devices
+    [ ] Support LCD devices
+    [ ] Support thermocouple MAX sensors
+    [ ] Support adxl accelerometers
+    [ ] Support lis2dw and lis3dh 3-axis accelerometers
+    [ ] Support MPU accelerometers
+    [ ] Support HX711 and HX717 ADC chips
+    [ ] Support ADS 1220 ADC chip
+    [ ] Support ldc1612 eddy current sensor
+    [ ] Support angle sensors
+    [*] Support software based I2C "bit-banging"
+    [ ] Support software based SPI "bit-banging"
+    ```
 
-2. **Compile the firmware:**
+4. Save and exit the menu.
 
-        make
+5. **Compile the firmware:**
 
-3. **Installing the firmware on the iHeter board:**
+    ```sh
+    make clean
+    make
+    ```
 
-- Connect the Iheater to the computer in programming mode (by holding the BOOTSEL button when connected).
+    Expected output:
+    ```
+    Creating hex file out/klipper.bin
+    ```
 
-- Mount the device and download the firmware:
+6. **Flashing firmware to iHeater:**
 
-        sudo mount /dev/sda1 /mnt
-        sudo cp out/klipper.uf2 /mnt
-        sudo umount /mnt
+    If needed, install pyserial:
 
-> **Note:** Replace /dev/sda1 with the appropriate path to your device.
+    ```sh
+    sudo apt install python3-serial
+    ```
+
+    This example uses Katapult bootloader.
+
+- Connect iHeater to your computer while holding the Mode button to enter flashing mode.
+
+- Check for the device:
+
+    ```sh
+    ls /dev/serial/by-id/
+    ```
+
+    Expected output:
+    ```
+    usb-katapult_stm32f042x6_0C0018000D53304347373020-if00
+    ```
+
+- Replace with your actual ID and run:
+
+    ```sh
+    python3 ~/katapult/scripts/flashtool.py -d /dev/serial/by-id/usb-katapult_stm32f042x6_... -f out/klipper.bin
+    ```
+
+    Expected output:
+
+    ```
+    Flashing '/home/pi/klipper/out/klipper.bin'...
+
+    [##################################################]
+    
+    Write complete: 20 pages
+
+    Verifying (block count = 319)...
+
+    [##################################################]
+
+    Verification Complete: SHA = 8A3DDF39A0E70B684DC6BAF74EF8F089EBDD6C18
+
+    Flash Success
+    ```
+
+- Verify:
+
+    ```sh
+    ls /dev/serial/by-id/
+    ```
+
+    Expected result:
+    ```
+    usb-Klipper_stm32f042x6_0C0018000D53304347373020-if00
+    ```
+
+    iHeater is now ready to work with Klipper.
+
+## Pin Configuration
+
+| Pin    | Alias       | Function                          |
+|--------|-------------|-----------------------------------|
+| PA0    | TH1         | Heater thermistor                 |
+| PA1    | HEATER      | Heater control                    |
+| PA2    | FAN         | Fan control                       |
+| PA3    | TH0         | Chamber thermistor                |
+| PA4    | MODE        | Mode button                       |
+| PA5    | LED3        | LED 3                             |
+| PA6    | LED2        | LED 2                             |
+| PA7    | LED1        | LED 1                             |
 
 ## Klipper Configuration
 
-Copy the iHeaterMCU.cfg and rp2040_pin_aliases.cfg configuration files to the printer.cfg folder and enable it using the [include] directive.
-        
-        [include iHeater.cfg]
+Copy the `iHeater.cfg` configuration file into the same folder as `printer.cfg` and include it using:
 
-### 1. Connecting the iHeater MCU
+```ini
+[include iHeater.cfg]
+```
 
-[Search for the MCU](#https://www.klipper3d.org/Installation.html#building-and-flashing-the-micro-controller )
+### 1. Connecting the `iHeater` MCU
 
-        [mcu iHeater]
-        serial: /dev/serial/by-id/usb-Klipper_rp2040_DE63581213745233-if00
+Update the `iHeater.cfg` file with the correct serial ID:
 
-- Description:
-- Connects an additional iHeater microcontroller to the specified serial port.
-
-
-### 2. Setting up the iHeater_H heater
-
-    [heater_generic iHeater_H]
-    heater_pin: iHeater:H0
-    max_power: 1
-    sensor_type: NTC 100K MGB18-104F39050L32
-    sensor_pin: iHeater:T0
-    control: pid
-    pwm_cycle_time: 0.3
-    min_temp: 0
-    max_temp: 120
-    pid_Kp=32.923
-    pid_Ki=5.628
-    pid_Kd=48.150
-
-    [verify_heater iHeater_H]
-    max_error: 240
-    check_gain_time: 120
-    heating_gain: 1
-
-- Description:
-- heater_generic iHeater_H: Adjusts the camera heater.
-heater_pin: The pin to which the heating element is connected.
-    - sensor: Uses the iHeater_Sens_H temperature sensor.
-    - PID parameters for precise temperature control.
--verify_heater iHeater_H: Parameters for checking the heater for safety.
-
-### 3. Setting up the iHeater_F fan
-
-    [fan_generic iHeater_F1]
-    pin: iHeater:FAN0
-    max_power: 1.0
-    shutdown_speed: 0
-
-- Description:
-    
-    - Adjusts the fan for air circulation in the chamber.
-    - Controlled by macros depending on the temperature.
-
-### 4. Setting up temperature sensors
-
-    [temperature_sensor iHeater_Sens_C]
-    sensor_pin: iHeater:T0
-    sensor_type: NTC 100K MGB18-104F39050L32
-
-
-- Description:
-- iHeater_Sens_C: Camera temperature sensor.
-    - iHeater_Sens_H: Heater temperature sensor.
-
-
-### 5. G-code macros
-Overriding the M141 and M191 commands
-
-    [gcode_macro M141]
-    rename_existing: M141.1
-    gcode:
-        M141.1 S{params.S|0}
-        UPDATE_DELAYED_GCODE ID=_iHEATER_CONTROL DURATION=0
-
-    [gcode_macro M191]
-    gcode:
-        M191.1 S{params.S|0}
-        UPDATE_DELAYED_GCODE ID=_iHEATER_CONTROL DURATION=0
-
-- Description:
-- Override the standard commands for controlling the heating of the camera.
-    - When called, the _iHEATER_CONTROL macro is run.
-
-Heating and fan control macro
-
-    [delayed_gcode _iHEATER_CONTROL]
-    gcode:
-        {% set target_heater_temp = printer['gcode_macro HEATER_TARGET'].heater_target %}
-        {% set current_heater_temp = printer['heater_generic iHeater_H']temperature %}
-        {% set chamber_temp = printer['temperature_sensor iHeater_Sens_C']temperature %}
-        {% set delta = printer['gcode_macro DELTA_TEMPERATURE']delta_temp %}
-        {% set target_chamber_temp = target_heater_temp - delta %}
-        {% set fan_speed = printer['gcode_macro FAN_SPEED']fan_speed %}
-        
-        {% if target_heater_temp > 0 %}
-            {% if chamber_temp < target_chamber_temp %}
-                # We maintain the temperature of the heater
-                SET_HEATER_TEMPERATURE HEATER=iHeater_H TARGET={target_heater_temp}
-                # Turn on the fan at the set speed
-                SET_FAN_SPEED FAN=iHeater_F1 SPEED={fan_speed}
-            {% else %}
-                # Reduce the temperature of the heater
-                {% set reduced_heater_temp = (target_heater_temp - (delta / 4.0)) | round(2) %}
-                SET_HEATER_TEMPERATURE HEATER=iHeater_H TARGET={reduced_heater_temp}
-                # Turn on the fan at maximum speed
-                SET_FAN_SPEED FAN=iHeater_F1 SPEED={fan_speed}
-                # Updating the fan speed variable to the maximum
-            {% endif %}
-        {% else %}
-            # HEATER_TARGET == 0, the shutdown process
-            {% if current_heater_temp > 50 %}
-                # Keep the fan turned on until the heater cools down to 50°C
-                SET_FAN_SPEED FAN=iHeater_F1 SPEED=1.0
-                SET_GCODE_VARIABLE VARIABLE=fan_speed VALUE=1.0
-            {% else %}
-                # Turn off the fan and stop the control macro
-                SET_FAN_SPEED FAN=iHeater_F1 SPEED=0.0
-                SET_GCODE_VARIABLE VARIABLE=fan_speed VALUE=0.0
-                CANCEL_DELAYED_GCODE ID=_iHEATER_CONTROL
-                RESPONSE prefix="iHeater_control" msg="Camera heating and fan are disabled."
-            {% endif %}
-        {% endif %}
-        
-- Description:
-- Monitors the temperature and controls the fan depending on the set logic.
-    - The fan turns on when the chamber temperature reaches 50°C.
+```ini
+[mcu iHeater]
+serial: usb-Klipper_stm32f042x6_0C0018000D53304347373020-if00
+```
 
 ## Usage
-### Camera heating control commands
-- Setting the camera temperature:
- 
 
-        M141 S60 ; Sets the camera temperature to 60°C
+### Chamber Heating Control Commands
 
-- Waiting for the temperature to reach:
+- Set chamber temperature:
 
-        M191 S60 ; Waits until the camera temperature reaches 60°C
+    ```gcode
+    M141 S60  ; Set chamber temperature to 60°C
+    ```
 
-- Stopping the heating of the chamber:
+- Wait until chamber reaches target temperature:
 
-        M141 S0 ; Turns off the heating of the camera
+    ```gcode
+    M191 S60  ; Wait for chamber to reach 60°C
+    ```
 
+- Stop chamber heating:
 
-## Automation and control logic
-The _iHEATER_CONTROL macro automatically controls the fan depending on the temperature of the camera.
-When the temperature reaches 50°C, the iHeater_F fan turns on.
-Macros can be customized to your requirements by changing the thresholds and logic.
+    ```gcode
+    M141 S0   ; Disable chamber heating
+    ```
 
+- Add `M141 S0` to the end of your slicer's G-code to safely turn off the heater.
 
 ## Notes
-- Security:
 
-    - Make sure that all connections are made correctly and securely.
-    - Check that the min_temp and max_temp values match the hardware specifications.
+- **Safety:**
+  - Ensure all wiring is correct and secure.
+  - Make sure `min_temp` and `max_temp` values are appropriate for your hardware.
 
-- Checking the equipment:
-- Before using, test the operation of the heater and fan.
-    - Keep an eye on the temperature during the first launches.
-- Setting up the PID:
-    - If necessary, perform PID calibration for accurate temperature control.
+- **Hardware check:**
+  - Test the heater and fan before regular use.
+  - Monitor temperatures during initial testing.
 
+- **PID Tuning:**
+  - Perform PID calibration if needed for accurate temperature control.
 
 ## License
-This project is distributed under the MIT license. For details, see the LICENSE file.
 
+This project is licensed under the MIT License. See the LICENSE file for details.
 
->** Attention: The use of heating elements and temperature control is associated with the risk of fire and damage to the equipment. Always follow the manufacturer's recommendations and take precautions.
+> ⚠️ **Warning:** Using heating elements and temperature control involves risks of fire and equipment damage. Always follow manufacturer guidelines and observe safety precautions.

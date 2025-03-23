@@ -1,3 +1,33 @@
+
+# О проекте iHeater
+
+iHeater — это компактное и доступное решение для 3D-принтеров без активной термокамеры или с ограниченными возможностями подключения к материнской плате. Он особенно полезен для моделей с проприетарными платами, где нет свободных разъёмов для вентилятора, нагревателя или термистора. iHeater решает эту задачу простым и универсальным способом.
+
+Может работать самостоятельно с собственной прошивкой как отдельное устройство или под управлением Klipper с подключением к принтеру по USB
+
+**Под управлением Klipper**
+
+Плата работает как отдельный MCU в Klipper, полностью автономно управляя нагревом камеры и вентилятором. Благодаря питанию от 220 В, iHeater не нагружает блок питания принтера, что особенно важно, учитывая, что штатные БП часто работают на пределе.
+
+Стоимость платы сопоставима или даже ниже, чем самостоятельная сборка аналогичного решения на базе обычного микроконтроллера, твердотельного реле и других необходимых комплектующих. Тем не менее, для энтузиастов остаётся возможность собрать аналог самостоятельно.
+
+iHeater — это простой способ добавить нагрев камеры в ваш принтер, для повышения качества печати и расширения диапазона применяемых материалов.
+
+**С прошивкой iHeater**
+
+Плата iHeater является самодостаточной и имеет всю необходимую периферию и интерфейс управления и отображения для использования как самостоятельное устройство. Необходимая температура задается последовательным нажатием кнопки MODE, а выбранная температура кодируется и отображается тремя светодиодами. Приращение можно изменить в прошивке.
+
+Нажатие	|LED1	|LED2	|LED3	|Температура	|BIN	|DEC
+-|-|-|-|-|-|-
+1	|0	|0	|1	|45 °C	|0b001	|1
+2	|0	|1	|0	|50 °C	|0b010	|2
+3	|0	|1	|1	|55 °C	|0b011	|3
+4	|1	|0	|0	|60 °C	|0b100	|4
+5	|1	|0	|1	|65 °C	|0b101	|5
+6	|1	|1	|0	|70 °C	|0b110	|6
+7	|1	|1	|1	|75 °C	|0b111	|7
+
+
 # Конфигурация iHeater для Klipper
 
 Данный репозиторий содержит конфигурационные файлы для нагревателя камеры 3D-принтера iHeater на основе прошивки Klipper и одноименной платы управления. Конфигурация предназначена для управления нагревом камеры и вентиляторами с помощью микроконтроллера iHeater.
@@ -52,26 +82,31 @@
 2. **В меню конфигурации выберите:**
 
     Enable extra low-level configuration options
+    
     Micro-controller Architecture (STMicroelectronics STM32)
+
     Processor model (STM32F042)
+
     Bootloader offset (8KiB bootloader)
+
     Clock Reference (Internal clock)
+
     Communication interface (USB (on PA9/PA10))
 
 3. **Выключите все лишнее**
 
-    [*] Support GPIO "bit-banging" devices
-    [ ] Support LCD devices
-    [ ] Support thermocouple MAX sensors
-    [ ] Support adxl accelerometers
-    [ ] Support lis2dw and lis3dh 3-axis accelerometers
-    [ ] Support MPU accelerometers
-    [ ] Support HX711 and HX717 ADC chips
-    [ ] Support ADS 1220 ADC chip
-    [ ] Support ldc1612 eddy current sensor
-    [ ] Support angle sensors
-    [*] Support software based I2C "bit-banging"
-    [ ] Support software based SPI "bit-banging"
+        [*] Support GPIO "bit-banging" devices
+        [ ] Support LCD devices
+        [ ] Support thermocouple MAX sensors
+        [ ] Support adxl accelerometers
+        [ ] Support lis2dw and lis3dh 3-axis accelerometers
+        [ ] Support MPU accelerometers
+        [ ] Support HX711 and HX717 ADC chips
+        [ ] Support ADS 1220 ADC chip
+        [ ] Support ldc1612 eddy current sensor
+        [ ] Support angle sensors
+        [*] Support software based I2C "bit-banging"
+        [ ] Support software based SPI "bit-banging"
 
 
 4. Сохраните и выйдите из меню.
