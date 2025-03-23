@@ -176,10 +176,10 @@ iHeater is ready to work with Klipper
 
 | Pin  | Alias | Function                          |
 |------|-------|-----------------------------------|
-| PA0  | TH1   | Heater temperature sensor         |
+| PA0  | TH1   | Chamber temperature sensor        |
 | PA1  | HEATER| Heater control                    |
 | PA2  | FAN   | Fan control                       |
-| PA3  | TH0   | Chamber temperature sensor        |
+| PA3  | TH0   | Heater temperature sensor         |
 | PA4  | MODE  | Mode button                       |
 | PA5  | LED3  | LED 3                             |
 | PA6  | LED2  | LED 2                             |
