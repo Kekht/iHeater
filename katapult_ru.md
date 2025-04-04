@@ -18,7 +18,7 @@
 1. Клонируем репозиторий Katapult:
 
 ```bash
-git clone https://github.com/Klipper3d/katapult
+git clone https://github.com/Arksine/katapult
 cd katapult
 make menuconfig
 ```
@@ -115,10 +115,16 @@ Flash written and verified! jolly good!
     File downloaded successfully
     Transitioning to dfuMANIFEST state
 
+Сними перемычку, держивая кнопку MODE нажми и отпусти кнопку RESET(или переподключи USB-кабель).
+
 После перезапуска плата появится как:
 
     /dev/serial/by-id/usb-katapult_stm32f042x6_XXXXXXXXXXXXXX-if00
 
+Если нет прав, возможны ошибки при прошивке, чтобы получить доступ выполни команду:
+```
+sudo chmod 777 /dev/serial/by-id/usb-katapult_stm32f042x6_XXXXXXXXXXXXXX-if00
+``` 
 
 ## 📋 Примечания
 
