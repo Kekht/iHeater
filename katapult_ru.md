@@ -47,38 +47,6 @@ make
 
 Прошивка будет создана в `out/katapult.bin`.
 
----
-
-## 🔌 Прошивка Katapult через ST-Link
-
-> Этот шаг нужен только один раз, для загрузки самого Katapult.
-
-### Установка утилиты `st-flash`:
-
-```bash
-sudo apt install stlink-tools
-```
-
-### Подключение ST-Link:
-
-| ST-Link | STM32     |
-|---------|-----------|
-| SWDIO   | PA13      |
-| SWCLK   | PA14      |
-| GND     | GND       |
-| 3.3V    | VDD       |
-
-### Прошивка:
-
-```bash
-sudo st-flash write out/katapult.bin 0x08000000
-```
-
-Если всё в порядке, появится сообщение:
-
-```
-Flash written and verified! jolly good!
-```
 
 ---
 
@@ -119,12 +87,47 @@ Flash written and verified! jolly good!
 
 После перезапуска плата появится как:
 
+    ls /dev/serial/by-id/*
+
     /dev/serial/by-id/usb-katapult_stm32f042x6_XXXXXXXXXXXXXX-if00
 
 Если нет прав, возможны ошибки при прошивке, чтобы получить доступ выполни команду:
 ```
 sudo chmod 777 /dev/serial/by-id/usb-katapult_stm32f042x6_XXXXXXXXXXXXXX-if00
 ``` 
+
+[Установи прошивку Klipper](/iHeater/README_ru/#iheater_1)
+
+## 🔌 Прошивка Katapult через ST-Link
+
+> Этот шаг нужен только один раз, для загрузки самого Katapult.
+
+### Установка утилиты `st-flash`:
+
+```bash
+sudo apt install stlink-tools
+```
+
+### Прошивка:
+
+```bash
+sudo st-flash write out/katapult.bin 0x08000000
+```
+
+Если всё в порядке, появится сообщение:
+
+```
+Flash written and verified! jolly good!
+```
+
+### Подключение ST-Link:
+
+| ST-Link | STM32     |
+|---------|-----------|
+| SWDIO   | PA13      |
+| SWCLK   | PA14      |
+| GND     | GND       |
+| 3.3V    | VDD       |
 
 ## 📋 Примечания
 
