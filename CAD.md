@@ -7,8 +7,8 @@
 | Файл | Описание |
 |------|----------|
 | [`Base.stl`](CAD/Base.stl) | Основание корпуса, на котором крепятся все компоненты |
-| [`Cower Two Color.stl`](CAD/Cower%20Two%20Color.stl) | Верхняя крышка  печатается в два цвета|
-| [`Cower.stl`](CAD/Cower%20Two%20Color.stl) | Верхняя крышка|
+| [`Cover Two Color.stl`](CAD/Cover%20Two%20Color.stl) | Верхняя крышка  печатается в два цвета|
+| [`Cover.stl`](CAD/Cover.stl) | Верхняя крышка|
 | [`iHeater.stp`](CAD/iHeater.stp) | Полная сборка в формате STEP (для CAD-систем) |
 
 ## Форматы файлов

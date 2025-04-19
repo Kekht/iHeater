@@ -143,6 +143,12 @@ iHeater — это простой способ добавить нагрев к�
 
         usb-katapult_stm32f042x6_0C0018000D53304347373020-if00
 
+- При необходимости установите flashtool
+
+```
+pip install flashtool
+```
+
 - Измените на ID свой и введите:
     
         python3 ~/katapult/scripts/flashtool.py -d /dev/serial/by-id/usb-katapult_stm32f042x6_0C0018000D53304347373020-if00 -f ~/klipper/out/klipper.bin
@@ -189,7 +195,18 @@ iHeater — это простой способ добавить нагрев к�
 ## Конфигурация Klipper
 
 Скопируйте конфигурационные файлы iHeater.cfg в папку с файлом printer.cfg и подключите его в printer.cfg с помощью директивы [include]
-        
+
+
+```
+cd ~/klipper_config
+```
+
+```
+wget https://github.com/pavluchenkor/iHeater/blob/main/iHeater.cfg
+```
+
+Откройте printer.cfg и добавьте
+
     [include iHeater.cfg]
 
 ### 1. Подключение MCU iHeater

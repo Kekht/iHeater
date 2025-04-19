@@ -19,7 +19,7 @@ This document contains instructions for building and flashing the **Katapult** b
 1. Clone the Katapult repository:
 
 ```bash
-git clone https://github.com/Klipper3d/katapult
+git clone https://github.com/Arksine/katapult
 cd katapult
 make menuconfig
 ```
@@ -127,11 +127,18 @@ File downloaded successfully
 Transitioning to dfuMANIFEST state
 ```
 
+Remove the jumper, hold the MODE button and press and release the RESET button (or reconnect the USB cable).
+
 After rebooting, the board should appear as:
 
 ```
 /dev/serial/by-id/usb-katapult_stm32f042x6_XXXXXXXXXXXXXX-if00
 ```
+
+If you do not have rights, there may be errors during flashing, to get access, run the command:
+```
+sudo chmod 777 /dev/serial/by-id/usb-katapult_stm32f042x6_XXXXXXXXXXXXXX-if00
+``` 
 
 ## 📋 Notes
 
