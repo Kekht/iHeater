@@ -1,0 +1,1 @@
+{% include-markdown "../README_ru.md" start="# О проекте iHeater" end="## Установка" %}
