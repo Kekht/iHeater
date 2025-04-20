@@ -1,7 +1,7 @@
 
 # Katapult Bootloader for STM32F042F6P6
 
-This document contains instructions for building and flashing the **Katapult** bootloader from Klipper for the **STM32F042F6P6** microcontroller. The Katapult bootloader allows flashing Klipper firmware via USB without using an ST-Link, through DFU.
+This document contains instructions for building and flashing the **Katapult** bootloader from Klipper for the **STM32F042F6P6** microcontroller. The Katapult bootloader allows flashing Klipper firmware via USB without using an ST-Link.
 
 ---
 
