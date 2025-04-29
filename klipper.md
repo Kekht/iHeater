@@ -11,6 +11,9 @@
 - ST-Link V2 программатор (для первой прошивки) или USB кабель
 - Linux-система (например, Raspberry Pi или принтер)
 
+!!! warning "Если нет возможности собрать и прошить прошивку на принтере"
+    [Обратиттесь к разделу WSL](../iHeater/User-mods/software/WSL2_Ubuntu_FF/README.md)
+
 ---
 
 ## Сборка Katapult

@@ -28,7 +28,7 @@ cd ~/klipper_config
 ```
 
 ```
-wget https://github.com/pavluchenkor/iHeater/blob/main/iHeater.cfg
+wget https://raw.githubusercontent.com/pavluchenkor/iHeater/refs/heads/main/iHeater.cfg
 ```
 
 Откройте printer.cfg и добавьте
